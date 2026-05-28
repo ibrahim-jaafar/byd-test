@@ -2,10 +2,12 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 
-useGLTF.preload("/models/2024_byd_dolphin.glb");
+const MODEL_URL = "https://github.com/ibrahim-jaafar/byd-test/raw/refs/heads/main/public/models/2024_byd_dolphin.glb";
+ 
+useGLTF.preload(MODEL_URL);
 
 export default function Car({ onReady }) {
-  const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
+  const { scene } = useGLTF(MODEL_URL);
   const groupRef = useRef();
 
   useEffect(() => {
