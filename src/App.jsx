@@ -43,7 +43,7 @@ export default function App() {
       />
 
       {/* Environment lighting */}
-      <Environment preset="city" />
+      <Environment preset="sunset" />
 
       {/* FLOOR (FIXED - visible material) */}
       <mesh
