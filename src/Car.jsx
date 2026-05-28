@@ -1,29 +1,47 @@
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { useEffect } from "react";
+import { useEffect, forwardRef } from "react";
 
-export default function Car() {
+const Car = forwardRef((props, ref) => {
   const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
 
   useEffect(() => {
     if (!scene) return;
 
-    // Center model
+    // =========================
+    // 1. Compute bounding box
+    // =========================
     const box = new THREE.Box3().setFromObject(scene);
-    const center = box.getCenter(new THREE.Vector3());
+
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    const sphere = new THREE.Sphere();
+
+    box.getCenter(center);
+    box.getSize(size);
+    box.getBoundingSphere(sphere);
+
+    // =========================
+    // 2. Center model at origin
+    // =========================
     scene.position.sub(center);
 
-    // Auto scale (important for Blender exports)
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
+    // =========================
+    // 3. Auto scale (stable for all car types)
+    // =========================
+    const targetSize = 3; // controls how big the car appears
+    const scale = targetSize / sphere.radius;
 
-    const scale = 4 / maxDim;
     scene.scale.setScalar(scale);
 
-    // Slight lift so it sits on floor properly
-    scene.position.y = -1;
+    // =========================
+    // 4. Place model on floor correctly
+    // =========================
+    scene.position.y = -sphere.radius * scale;
 
-    // Enable shadows on all meshes
+    // =========================
+    // 5. Enable shadows for realism
+    // =========================
     scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -31,7 +49,14 @@ export default function Car() {
       }
     });
 
-  }, [scene]);
+    // =========================
+    // 6. Expose for external use (floor/camera systems)
+    // =========================
+    if (ref) ref.current = scene;
+
+  }, [scene, ref]);
 
   return <primitive object={scene} />;
-}
+});
+
+export default Car;
