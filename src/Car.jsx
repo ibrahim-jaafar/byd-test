@@ -7,8 +7,13 @@ useGLTF.preload("/models/2024_byd_dolphin.glb");
 export default function Car({ onReady }) {
   const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
 
+  console.log("scene loaded:", scene);
+
   useEffect(() => {
-    if (!scene) return;
+    if (!scene) {
+      console.log("scene is null/undefined");
+      return;
+    }
 
     const box = new THREE.Box3().setFromObject(scene);
 
@@ -20,6 +25,10 @@ export default function Car({ onReady }) {
     box.getSize(size);
     box.getBoundingSphere(sphere);
 
+    console.log("car center:", center);
+    console.log("car size:", size);
+    console.log("sphere radius:", sphere.radius);
+
     // center
     scene.position.sub(center);
 
@@ -27,6 +36,8 @@ export default function Car({ onReady }) {
     const targetSize = 3;
     const scale = targetSize / sphere.radius;
     scene.scale.setScalar(scale);
+
+    console.log("applied scale:", scale);
 
     // shadows
     scene.traverse((child) => {
@@ -36,7 +47,7 @@ export default function Car({ onReady }) {
       }
     });
 
-    // send bounds to parent (IMPORTANT)
+    // send bounds to parent
     if (onReady) {
       onReady({
         radius: sphere.radius * scale,
