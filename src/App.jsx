@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { useEffect } from "react";
 
 export default function Car() {
-  const { scene } = useGLTF("/Models/byd.glb");
+  const { scene } = useGLTF("/models/byd.glb");
 
   useEffect(() => {
     if (!scene) return;
