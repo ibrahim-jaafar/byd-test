@@ -5,7 +5,7 @@ import { useEffect } from "react";
 useGLTF.preload("/models/2024_byd_dolphin.glb");
 
 export default function Car({ onReady }) {
-  const { scene } = useGLTF("public/models/2024_byd_dolphin.glb");
+  const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
 
   useEffect(() => {
     if (!scene) return;
