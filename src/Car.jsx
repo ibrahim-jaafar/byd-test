@@ -2,8 +2,10 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEffect } from "react";
 
+useGLTF.preload("/models/2024_byd_dolphin.glb");
+
 export default function Car({ onReady }) {
-  const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
+  const { scene } = useGLTF("public/models/2024_byd_dolphin.glb");
 
   useEffect(() => {
     if (!scene) return;
@@ -41,7 +43,7 @@ export default function Car({ onReady }) {
         size: size.clone().multiplyScalar(scale),
       });
     }
-  }, [scene]);
+  }, [scene, onReady]);
 
   return <primitive object={scene} />;
 }

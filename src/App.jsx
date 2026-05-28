@@ -37,10 +37,10 @@ export default function App() {
         <Car onReady={setCarBounds} />
       </Suspense>
 
-      {/* FLOOR (NOW PROPERLY SCALED) */}
+      {/* FLOOR*/}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -1, 0]}
+        position={[0, carBounds ? -carBounds.size.y / 2 : -1, 0]}  // ✅ dynamic
         receiveShadow
       >
         <planeGeometry args={[floorSize, floorSize]} />
