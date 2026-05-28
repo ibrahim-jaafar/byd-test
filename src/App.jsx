@@ -3,7 +3,7 @@ import { OrbitControls, Environment, Html } from "@react-three/drei";
 import { Suspense, useState, useEffect } from "react";
 import Car from "./Car";
 
-const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/refs/heads/main/public/models/2024_byd_dolphin-v1.glb";
+const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/refs/heads/main/public/models/2024_byd_dolphin_comp.glb";
 // const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/refs/heads/main/public/models/2024_byd_dolphin.glb";
 
 function Loader({ progress }) {
@@ -88,9 +88,10 @@ export default function App() {
       >
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 10, 5]} intensity={2} castShadow />
-        <Environment preset="sunset" />
+        <Environment preset="warehouse" />
 
         {!blobUrl && <Loader progress={progress} />}
+
 
         {blobUrl && (
           <Suspense fallback={null}>
