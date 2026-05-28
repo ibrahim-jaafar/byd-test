@@ -1,10 +1,11 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, Html, useProgress } from "@react-three/drei";
-import { Suspense, useState } from "react";
+import { OrbitControls, Environment, Html } from "@react-three/drei";
+import { Suspense, useState, useEffect } from "react";
 import Car from "./Car";
 
-function Loader() {
-  const { progress } = useProgress();
+const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/b13b23e04d4698323bb5a2e5c2de168c9f0a9653/public/models/2024_byd_dolphin.glb";
+
+function Loader({ progress }) {
   return (
     <Html center>
       <div style={{
@@ -37,26 +38,52 @@ function Loader() {
 
 export default function App() {
   const [carBounds, setCarBounds] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [blobUrl, setBlobUrl] = useState(null);
+
+  useEffect(() => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", MODEL_URL, true);
+    xhr.responseType = "blob";
+
+    xhr.onprogress = (e) => {
+      if (e.lengthComputable) {
+        setProgress((e.loaded / e.total) * 100);
+      }
+    };
+
+    xhr.onload = () => {
+      const url = URL.createObjectURL(xhr.response);
+      setBlobUrl(url);
+    };
+
+    xhr.onerror = () => {
+      console.error("Failed to download model");
+    };
+
+    xhr.send();
+
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, []);
 
   const floorSize = carBounds ? carBounds.radius * 6 : 10;
 
   return (
-    <Canvas
-      shadows
-      camera={{ position: [0, 1.5, 5], fov: 50 }}
-    >
-      {/* LIGHTS */}
+    <Canvas shadows camera={{ position: [0, 1.5, 5], fov: 50 }}>
       <ambientLight intensity={0.6} />
       <directionalLight position={[5, 10, 5]} intensity={2} castShadow />
-
       <Environment preset="sunset" />
 
-      {/* CAR */}
-      <Suspense fallback={<Loader />}>
-        <Car onReady={setCarBounds} />
-      </Suspense>
+      {!blobUrl && <Loader progress={progress} />}
 
-      {/* FLOOR */}
+      {blobUrl && (
+        <Suspense fallback={null}>
+          <Car url={blobUrl} onReady={setCarBounds} />
+        </Suspense>
+      )}
+
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, carBounds ? -carBounds.size.y / 2 : -1, 0]}
@@ -66,7 +93,6 @@ export default function App() {
         <meshStandardMaterial color="#222" />
       </mesh>
 
-      {/* CAMERA */}
       <OrbitControls
         autoRotate
         autoRotateSpeed={1}
