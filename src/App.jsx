@@ -6,7 +6,6 @@ import {
 } from "@react-three/drei";
 
 import { Suspense } from "react";
-
 import Car from "./Car";
 
 function Loader() {
@@ -15,11 +14,11 @@ function Loader() {
       <div
         style={{
           color: "white",
-          fontSize: "20px",
+          fontSize: "18px",
           fontFamily: "Arial",
         }}
       >
-        Loading EV Model...
+        Loading 3D Model...
       </div>
     </Html>
   );
@@ -30,27 +29,23 @@ export default function App() {
     <Canvas
       shadows
       camera={{ position: [0, 1.5, 5], fov: 50 }}
-      style={{
-        width: "100vw",
-        height: "100vh",
-        background: "#111",
-      }}
+      style={{ width: "100vw", height: "100vh", background: "#111" }}
     >
-      {/* Lighting */}
-      <ambientLight intensity={0.5} />
+      {/* Lights */}
+      <ambientLight intensity={0.1} />
 
       <directionalLight
-        position={[5, 8, 5]}
-        intensity={2}
+        position={[5, 10, 5]}
+        intensity={0.1}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
       />
 
-      {/* Environment */}
+      {/* Environment lighting */}
       <Environment preset="city" />
 
-      {/* Floor */}
+      {/* FLOOR (FIXED - visible material) */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -1, 0]}
@@ -58,10 +53,14 @@ export default function App() {
       >
         <planeGeometry args={[100, 100]} />
 
-        <shadowMaterial opacity={0.35} />
+        <meshStandardMaterial
+          color="#222"
+          metalness={0.3}
+          roughness={0.6}
+        />
       </mesh>
 
-      {/* Car Model */}
+      {/* Car */}
       <Suspense fallback={<Loader />}>
         <Car />
       </Suspense>
@@ -73,6 +72,7 @@ export default function App() {
         autoRotateSpeed={1}
         minDistance={2}
         maxDistance={15}
+        target={[0, 0, 0]}
       />
     </Canvas>
   );
