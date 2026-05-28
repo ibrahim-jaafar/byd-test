@@ -1,25 +1,37 @@
-import { useGLTF } from "@react-three/drei";
-import * as THREE from "three";
-import { useEffect } from "react";
+import { Canvas } from "@react-three/fiber";
+import {
+  OrbitControls,
+  Environment,
+} from "@react-three/drei";
 
-export default function Car() {
-  const { scene } = useGLTF("/models/byd.glb");
+import Car from "./Car";
 
-  useEffect(() => {
-    if (!scene) return;
+export default function App() {
+  return (
+    <Canvas
+      camera={{ position: [0, 1.5, 5], fov: 50 }}
+      style={{ width: "100vw", height: "100vh" }}
+    >
+      {/* Lighting */}
+      <ambientLight intensity={1} />
 
-    // Center model
-    const box = new THREE.Box3().setFromObject(scene);
-    const center = box.getCenter(new THREE.Vector3());
-    scene.position.sub(center);
+      <directionalLight
+        position={[5, 5, 5]}
+        intensity={2}
+      />
 
-    // Auto scale
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2 / maxDim;
-    scene.scale.setScalar(scale);
+      {/* HDR-like environment */}
+      <Environment preset="city" />
 
-  }, [scene]);
+      {/* Car */}
+      <Car />
 
-  return <primitive object={scene} />;
+      {/* Camera controls */}
+      <OrbitControls
+        enableDamping
+        minDistance={2}
+        maxDistance={15}
+      />
+    </Canvas>
+  );
 }
