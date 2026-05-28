@@ -1,47 +1,34 @@
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { useEffect, forwardRef } from "react";
+import { useEffect } from "react";
 
-const Car = forwardRef((props, ref) => {
+export default function Car() {
   const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
 
   useEffect(() => {
     if (!scene) return;
 
-    // =========================
-    // 1. Compute bounding box
-    // =========================
+    // BOX
     const box = new THREE.Box3().setFromObject(scene);
 
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
-    const sphere = new THREE.Sphere();
 
     box.getCenter(center);
     box.getSize(size);
-    box.getBoundingSphere(sphere);
 
-    // =========================
-    // 2. Center model at origin
-    // =========================
+    // center model
     scene.position.sub(center);
 
-    // =========================
-    // 3. Auto scale (stable for all car types)
-    // =========================
-    const targetSize = 3; // controls how big the car appears
-    const scale = targetSize / sphere.radius;
+    // safe autoscale (less aggressive)
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2.5 / maxDim;
 
     scene.scale.setScalar(scale);
 
-    // =========================
-    // 4. Place model on floor correctly
-    // =========================
-    scene.position.y = -sphere.radius * scale;
+    // IMPORTANT: DO NOT force Y positioning yet
+    // (this is what usually hides the model)
 
-    // =========================
-    // 5. Enable shadows for realism
-    // =========================
     scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -49,14 +36,7 @@ const Car = forwardRef((props, ref) => {
       }
     });
 
-    // =========================
-    // 6. Expose for external use (floor/camera systems)
-    // =========================
-    if (ref) ref.current = scene;
-
-  }, [scene, ref]);
+  }, [scene]);
 
   return <primitive object={scene} />;
-});
-
-export default Car;
+}
