@@ -1,27 +1,26 @@
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, useGLTF } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
+import * as THREE from "three";
+import { useEffect, useRef } from "react";
 
-function Car() {
-  const { scene } = useGLTF("https://github.com/ibrahim-jaafar/test/blob/ae22ad96778abd66fc64c0e49635210592c93509/byd.glb");
-  return <primitive object={scene} scale={1} />;
-}
+export default function Car() {
+  const { scene } = useGLTF("/Models/byd.glb");
+  const ref = useRef();
 
-export default function App() {
-  return (
-    <Canvas camera={{ position: [4, 2, 4], fov: 60 }}>
-      
-      {/* basic lighting */}
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} intensity={2} />
+  useEffect(() => {
+    if (!scene) return;
 
-      {/* realistic environment lighting */}
-      <Environment preset="city" />
+    // 1. Center model
+    const box = new THREE.Box3().setFromObject(scene);
+    const center = box.getCenter(new THREE.Vector3());
+    scene.position.sub(center);
 
-      {/* car model */}
-      <Car />
+    // 2. Scale model to fit view
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2 / maxDim; // adjust “2” if needed
+    scene.scale.setScalar(scale);
 
-      {/* mouse controls */}
-      <OrbitControls enableDamping />
-    </Canvas>
-  );
+  }, [scene]);
+
+  return <primitive object={scene} ref={ref} />;
 }
