@@ -2,8 +2,7 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 
-const MODEL_URL = "https://github.com/ibrahim-jaafar/byd-test/raw/refs/heads/main/public/models/2024_byd_dolphin.glb";
- 
+const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/b13b23e04d4698323bb5a2e5c2de168c9f0a9653/public/models/2024_byd_dolphin.glb"; 
 useGLTF.preload(MODEL_URL);
 
 export default function Car({ onReady }) {
