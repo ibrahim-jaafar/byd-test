@@ -3,7 +3,8 @@ import { OrbitControls, Environment, Html } from "@react-three/drei";
 import { Suspense, useState, useEffect } from "react";
 import Car from "./Car";
 
-const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/b13b23e04d4698323bb5a2e5c2de168c9f0a9653/public/models/2024_byd_dolphin.glb";
+const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/refs/heads/main/public/models/2024_byd_dolphin-v1.glb";
+// const MODEL_URL = "https://raw.githubusercontent.com/ibrahim-jaafar/byd-test/refs/heads/main/public/models/2024_byd_dolphin.glb";
 
 function Loader({ progress }) {
   return (
@@ -71,35 +72,49 @@ export default function App() {
   const floorSize = carBounds ? carBounds.radius * 6 : 10;
 
   return (
-    <Canvas shadows camera={{ position: [0, 1.5, 5], fov: 50 }}>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 10, 5]} intensity={2} castShadow />
-      <Environment preset="sunset" />
-
-      {!blobUrl && <Loader progress={progress} />}
-
-      {blobUrl && (
-        <Suspense fallback={null}>
-          <Car url={blobUrl} onReady={setCarBounds} />
-        </Suspense>
-      )}
-
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, carBounds ? -carBounds.size.y / 2 : -1, 0]}
-        receiveShadow
+    <div style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      height: "100vh",
+      overflow: "hidden",
+      background: "#000"
+    }}>
+      <Canvas
+        shadows
+        camera={{ position: [0, 1.5, 5], fov: 50 }}
+        style={{ width: "100%", height: "100%" }}
       >
-        <planeGeometry args={[floorSize, floorSize]} />
-        <meshStandardMaterial color="#222" />
-      </mesh>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 10, 5]} intensity={2} castShadow />
+        <Environment preset="sunset" />
 
-      <OrbitControls
-        autoRotate
-        autoRotateSpeed={1}
-        minDistance={2}
-        maxDistance={15}
-        target={[0, 0, 0]}
-      />
-    </Canvas>
+        {!blobUrl && <Loader progress={progress} />}
+
+        {blobUrl && (
+          <Suspense fallback={null}>
+            <Car url={blobUrl} onReady={setCarBounds} />
+          </Suspense>
+        )}
+
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, carBounds ? -carBounds.size.y / 2 : -1, 0]}
+          receiveShadow
+        >
+          <planeGeometry args={[floorSize, floorSize]} />
+          <meshStandardMaterial color="#222" />
+        </mesh>
+
+        <OrbitControls
+          autoRotate
+          autoRotateSpeed={1}
+          minDistance={2}
+          maxDistance={15}
+          target={[0, 0, 0]}
+        />
+      </Canvas>
+    </div>
   );
 }
