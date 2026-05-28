@@ -1,22 +1,17 @@
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 useGLTF.preload("/models/2024_byd_dolphin.glb");
 
 export default function Car({ onReady }) {
   const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
-
-  console.log("scene loaded:", scene);
+  const groupRef = useRef();
 
   useEffect(() => {
-    if (!scene) {
-      console.log("scene is null/undefined");
-      return;
-    }
+    if (!scene || !groupRef.current) return;
 
     const box = new THREE.Box3().setFromObject(scene);
-
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
     const sphere = new THREE.Sphere();
@@ -25,21 +20,26 @@ export default function Car({ onReady }) {
     box.getSize(size);
     box.getBoundingSphere(sphere);
 
-    console.log("car center:", center);
-    console.log("car size:", size);
-    console.log("sphere radius:", sphere.radius);
+    console.log("center:", center);
+    console.log("size:", size);
+    console.log("radius:", sphere.radius);
 
-    // center
-    scene.position.sub(center);
+    if (!sphere.radius || sphere.radius === 0) {
+      console.error("Model has zero radius — geometry may be empty");
+      return;
+    }
 
-    // scale
     const targetSize = 3;
     const scale = targetSize / sphere.radius;
-    scene.scale.setScalar(scale);
 
-    console.log("applied scale:", scale);
+    // Apply transforms to the GROUP, not the scene directly
+    groupRef.current.scale.setScalar(scale);
+    groupRef.current.position.set(
+      -center.x * scale,
+      -center.y * scale,
+      -center.z * scale
+    );
 
-    // shadows
     scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -47,7 +47,6 @@ export default function Car({ onReady }) {
       }
     });
 
-    // send bounds to parent
     if (onReady) {
       onReady({
         radius: sphere.radius * scale,
@@ -56,5 +55,9 @@ export default function Car({ onReady }) {
     }
   }, [scene, onReady]);
 
-  return <primitive object={scene} />;
+  return (
+    <group ref={groupRef}>
+      <primitive object={scene} />
+    </group>
+  );
 }
