@@ -2,33 +2,31 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEffect } from "react";
 
-export default function Car() {
+export default function Car({ onReady }) {
   const { scene } = useGLTF("/models/2024_byd_dolphin.glb");
 
   useEffect(() => {
     if (!scene) return;
 
-    // BOX
     const box = new THREE.Box3().setFromObject(scene);
 
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
+    const sphere = new THREE.Sphere();
 
     box.getCenter(center);
     box.getSize(size);
+    box.getBoundingSphere(sphere);
 
-    // center model
+    // center
     scene.position.sub(center);
 
-    // safe autoscale (less aggressive)
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2.5 / maxDim;
-
+    // scale
+    const targetSize = 3;
+    const scale = targetSize / sphere.radius;
     scene.scale.setScalar(scale);
 
-    // IMPORTANT: DO NOT force Y positioning yet
-    // (this is what usually hides the model)
-
+    // shadows
     scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -36,6 +34,13 @@ export default function Car() {
       }
     });
 
+    // send bounds to parent (IMPORTANT)
+    if (onReady) {
+      onReady({
+        radius: sphere.radius * scale,
+        size: size.clone().multiplyScalar(scale),
+      });
+    }
   }, [scene]);
 
   return <primitive object={scene} />;

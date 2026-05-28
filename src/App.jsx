@@ -5,89 +5,50 @@ import {
   Html,
 } from "@react-three/drei";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Car from "./Car";
 
 function Loader() {
   return (
     <Html center>
-      <div
-        style={{
-          color: "white",
-          fontSize: "18px",
-          fontFamily: "Arial",
-        }}
-      >
-        Loading 3D Model...
-      </div>
+      <div style={{ color: "white" }}>Loading...</div>
     </Html>
   );
 }
 
 export default function App() {
+  const [carBounds, setCarBounds] = useState(null);
+
+  const floorSize = carBounds ? carBounds.radius * 6 : 10;
+
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 2, 8], fov: 50 }}
-      style={{
-        width: "100vw",
-        height: "100vh",
-        background: "#111",
-      }}
+      camera={{ position: [0, 1.5, 5], fov: 50 }}
     >
-      {/* ===================== */}
-      {/* LIGHTING (IMPORTANT) */}
-      {/* ===================== */}
-
+      {/* LIGHTS */}
       <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 10, 5]} intensity={2} castShadow />
 
-      <directionalLight
-        position={[5, 10, 5]}
-        intensity={2}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-      />
-
-      <directionalLight
-        position={[-5, 5, -5]}
-        intensity={0.5}
-      />
-
-      {/* ===================== */}
-      {/* ENVIRONMENT LIGHT */}
-      {/* ===================== */}
       <Environment preset="sunset" />
 
-      {/* ===================== */}
-      {/* FLOOR (SHOWROOM STYLE) */}
-      {/* ===================== */}
+      {/* CAR */}
+      <Suspense fallback={<Loader />}>
+        <Car onReady={setCarBounds} />
+      </Suspense>
+
+      {/* FLOOR (NOW PROPERLY SCALED) */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -1, 0]}
         receiveShadow
       >
-        <planeGeometry args={[200, 200]} />
-
-        <meshStandardMaterial
-          color="#1e1e1e"
-          metalness={0.3}
-          roughness={0.6}
-        />
+        <planeGeometry args={[floorSize, floorSize]} />
+        <meshStandardMaterial color="#222" />
       </mesh>
 
-      {/* ===================== */}
-      {/* CAR MODEL */}
-      {/* ===================== */}
-      <Suspense fallback={<Loader />}>
-        <Car />
-      </Suspense>
-
-      {/* ===================== */}
-      {/* CAMERA CONTROLS */}
-      {/* ===================== */}
+      {/* CAMERA */}
       <OrbitControls
-        enableDamping
         autoRotate
         autoRotateSpeed={1}
         minDistance={2}
